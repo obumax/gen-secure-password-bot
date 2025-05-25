@@ -173,7 +173,6 @@ func handleCallback(bot *tgbotapi.BotAPI, cq *tgbotapi.CallbackQuery) {
 
 		bot.Request(tgbotapi.NewCallback(cq.ID, ""))
 		sendLocalized(bot, chatID, i18nutil.Localizer(lang), "start_greeting", nil)
-		sendLocalized(bot, chatID, i18nutil.Localizer(lang), "start_commands", nil)
 		showMainMenu(bot, sess)
 		return
 	}
@@ -210,9 +209,10 @@ func handleCallback(bot *tgbotapi.BotAPI, cq *tgbotapi.CallbackQuery) {
 		sess.Flags = toggle(sess.Flags, code)
 		_ = sessionStore.Set(chatID, sess)
 
-		kb := flagsKeyboard(sess.Flags, loc)
+		kb := flagsKeyboard(sess, loc)
 		edit := tgbotapi.NewEditMessageText(chatID, cq.Message.MessageID,
 			mustLocalize(loc, "prompt_flags"))
+		edit.ParseMode = "MarkdownV2"
 		edit.ReplyMarkup = &kb
 		bot.Send(edit)
 		return
@@ -272,9 +272,13 @@ func showMainMenu(bot *tgbotapi.BotAPI, sess *session.Session) {
 	kb := tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
 			tgbotapi.NewInlineKeyboardButtonData(
-				mustLocalize(loc, "btn_quick"), "gen:quick"),
+				mustLocalize(loc, "button.generate_strong"),
+				"gen:quick",
+			),
 			tgbotapi.NewInlineKeyboardButtonData(
-				mustLocalize(loc, "btn_custom"), "gen:custom"),
+				mustLocalize(loc, "button.configure_generate"),
+				"gen:custom",
+			),
 		),
 	)
 	send(bot, sess.ChatID, mustLocalize(loc, "start_commands"), &kb)
@@ -325,7 +329,7 @@ func onLenCustom(bot *tgbotapi.BotAPI, text string, sess *session.Session) {
 	sess.State = "await_flags"
 	_ = sessionStore.Set(chatID, sess)
 
-	kb := flagsKeyboard(sess.Flags, loc)
+	kb := flagsKeyboard(sess, loc)
 	send(bot, chatID, mustLocalize(loc, "prompt_flags"), &kb)
 }
 
@@ -362,8 +366,14 @@ func sendWithButtons(bot *tgbotapi.BotAPI, chatID int64, loc *goi18n.Localizer, 
 	msg.ParseMode = "MarkdownV2"
 	kb := tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData(mustLocalize(loc, "btn_again"), "gen:again"),
-			tgbotapi.NewInlineKeyboardButtonData(mustLocalize(loc, "btn_new"), "gen:new"),
+			tgbotapi.NewInlineKeyboardButtonData(
+				mustLocalize(loc, "button.more"),
+				"gen:again",
+			),
+			tgbotapi.NewInlineKeyboardButtonData(
+				mustLocalize(loc, "button.new"),
+				"gen:new",
+			),
 		),
 	)
 	msg.ReplyMarkup = &kb
@@ -373,9 +383,9 @@ func sendWithButtons(bot *tgbotapi.BotAPI, chatID int64, loc *goi18n.Localizer, 
 }
 
 // flagsKeyboard builds inline toggles for categories U/L/D/S/X plus Generate button
-func flagsKeyboard(flags []string, loc *goi18n.Localizer) tgbotapi.InlineKeyboardMarkup {
+func flagsKeyboard(sess *session.Session, loc *goi18n.Localizer) tgbotapi.InlineKeyboardMarkup {
 	isOn := func(code string) bool {
-		for _, f := range flags {
+		for _, f := range sess.Flags {
 			if f == code {
 				return true
 			}
@@ -384,30 +394,44 @@ func flagsKeyboard(flags []string, loc *goi18n.Localizer) tgbotapi.InlineKeyboar
 	}
 	mark := func(on bool) string {
 		if on {
-			return "✔"
+			return "✅"
 		}
 		return "❌"
 	}
 	// rows of toggle buttons
 	row1 := []tgbotapi.InlineKeyboardButton{
 		tgbotapi.NewInlineKeyboardButtonData(
-			fmt.Sprintf("%s %s", mark(isOn("U")), mustLocalize(loc, "flag_upper")), "flag:U"),
+			fmt.Sprintf("%s %s", mark(isOn("U")), mustLocalize(loc, "button.uppercase")),
+			"flag:U",
+		),
 		tgbotapi.NewInlineKeyboardButtonData(
-			fmt.Sprintf("%s %s", mark(isOn("L")), mustLocalize(loc, "flag_lower")), "flag:L"),
+			fmt.Sprintf("%s %s", mark(isOn("L")), mustLocalize(loc, "button.lowercase")),
+			"flag:L",
+		),
 	}
 	row2 := []tgbotapi.InlineKeyboardButton{
 		tgbotapi.NewInlineKeyboardButtonData(
-			fmt.Sprintf("%s %s", mark(isOn("D")), mustLocalize(loc, "flag_digits")), "flag:D"),
+			fmt.Sprintf("%s %s", mark(isOn("D")), mustLocalize(loc, "button.digits")),
+			"flag:D",
+		),
 		tgbotapi.NewInlineKeyboardButtonData(
-			fmt.Sprintf("%s %s", mark(isOn("S")), mustLocalize(loc, "flag_symbols")), "flag:S"),
+			fmt.Sprintf("%s %s", mark(isOn("S")), mustLocalize(loc, "button.symbols")),
+			"flag:S",
+		),
 	}
 	row3 := []tgbotapi.InlineKeyboardButton{
 		tgbotapi.NewInlineKeyboardButtonData(
-			fmt.Sprintf("%s %s", mark(isOn("X")), mustLocalize(loc, "flag_exclude")), "flag:X"),
+			fmt.Sprintf("%s %s", mark(isOn("X")), mustLocalize(loc, "button.exclude_similar")),
+			"flag:X",
+		),
 	}
 	row4 := []tgbotapi.InlineKeyboardButton{
-		tgbotapi.NewInlineKeyboardButtonData(mustLocalize(loc, "btn_generate"), "gen:run"),
+		tgbotapi.NewInlineKeyboardButtonData(
+			mustLocalize(loc, "button.generate"),
+			"gen:run",
+		),
 	}
+
 	return tgbotapi.NewInlineKeyboardMarkup(row1, row2, row3, row4)
 }
 

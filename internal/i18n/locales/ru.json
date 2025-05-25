@@ -1,11 +1,21 @@
 {
-  "length_out_of_range":     "длина пароля должна быть от {{.Min}} до {{.Max}} символов",
-  "no_category_selected":    "выберите хотя бы одну категорию символов",
+  "length_out_of_range":     "Длина пароля должна быть от {{.Min}} до {{.Max}} символов",
+  "no_category_selected":    "Выберите хотя бы одну категорию символов",
   "start_choose_language":   "Выберите язык",
   "start_greeting":          "Добро пожаловать! Я бот-генератор паролей.",
-  "start_commands":          "Используйте /generate, чтобы создать новый пароль.",
+  "start_commands":          "Нажмите на нужную кнопку для генерации сложного пароля или для настройки пароля",
   "prompt_length":           "Укажите длину пароля ({{.Min}}–{{.Max}}):",
   "prompt_flags":            "Выберите категории символов для пароля:",
   "generation_success":      "Ваш пароль: {{.Password}}",
-  "unknown_command":         "Команда не распознана, нажмите /start"
+  "unknown_command":         "Команда не распознана, нажмите /start",
+  "button.generate_strong":      "Сложный пароль",
+  "button.configure_generate":   "Настроить",
+  "button.uppercase":            "Прописные буквы",
+  "button.lowercase":            "Строчные буквы",
+  "button.digits":               "Цифры",
+  "button.symbols":              "Спец. символы",
+  "button.exclude_similar":      "Исключить похожие символы il1O0",
+  "button.generate":             "Генерировать",
+  "button.more":                 "Ещё вариант",
+  "button.new":                  "Начать заново"
 }

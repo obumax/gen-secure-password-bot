@@ -1,11 +1,21 @@
 {
-  "length_out_of_range":     "password length must be between {{.Min}} and {{.Max}} characters",
-  "no_category_selected":    "please select at least one character category",
+  "length_out_of_range":     "Password length must be between {{.Min}} and {{.Max}} characters",
+  "no_category_selected":    "Please select at least one character category",
   "start_choose_language":   "Choose language",
   "start_greeting":          "Welcome! I am a password generator bot.",
-  "start_commands":          "Use /generate to create a new password.",
+  "start_commands":          "Click on the desired button to generate a strong password or to set up a password.",
   "prompt_length":           "Please specify password length ({{.Min}}–{{.Max}}):",
   "prompt_flags":            "Select character sets for your password:",
   "generation_success":      "Your password: {{.Password}}",
-  "unknown_command":         "Unrecognized command, please press /start"
+  "unknown_command":         "Unrecognized command, please press /start",
+  "button.generate_strong":      "Strong password",
+  "button.configure_generate":   "Configure",
+  "button.uppercase":            "Uppercase letters",
+  "button.lowercase":            "Lowercase letters",
+  "button.digits":               "Numbers",
+  "button.symbols":              "Special symbols",
+  "button.exclude_similar":      "Exclude similar characters il1O0",
+  "button.generate":             "Generate",
+  "button.more":                 "Another",
+  "button.new":                  "Restart"
 }
