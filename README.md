@@ -156,6 +156,7 @@ cd gen-secure-password-bot
 BOT_TOKEN=ваш_токен_бота
 REDIS_PASSWORD=ваш_пароль_redis
 ```
+
 3. Start with Docker Compose
 
 ```bash
@@ -172,7 +173,7 @@ https://t.me/GenSecurePasswordBot
 
 MIT License
 
-Copyright (c) 2025 Maxim Obukhov https://github.com/obumax
+Copyright (c) 2025 Maksim Obukhov https://github.com/obumax
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
