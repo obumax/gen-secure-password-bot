@@ -14,17 +14,17 @@ func TestRedisStoreGetSetDelete(t *testing.T) {
 	store := &RedisStore{
 		client: client,
 		prefix: "session:",
-		ttl:    24 * time.Hour,
+		ttl:    0,
 	}
 	chatID := int64(12345)
 	key := store.key(chatID)
 
-	// Get → not found
+	// GET → not found
 	mock.ExpectGet(key).RedisNil()
 	_, err := store.Get(chatID)
 	assert.Equal(t, ErrNotFound, err)
 
-	// Set + Get
+	// SET + GET
 	sess := &Session{ChatID: chatID, Language: "ru", State: "init", LastActive: time.Now()}
 	buf, _ := json.Marshal(sess)
 	mock.ExpectSet(key, buf, store.ttl).SetVal("OK")
@@ -33,9 +33,11 @@ func TestRedisStoreGetSetDelete(t *testing.T) {
 	assert.NoError(t, store.Set(chatID, sess))
 	got, err := store.Get(chatID)
 	assert.NoError(t, err)
-	assert.Equal(t, sess.Language, got.Language)
 
-	// Delete
+	gotBuf, _ := json.Marshal(got)
+	assert.Equal(t, string(buf), string(gotBuf))
+
+	// DELETE
 	mock.ExpectDel(key).SetVal(1)
 	assert.NoError(t, store.Delete(chatID))
 

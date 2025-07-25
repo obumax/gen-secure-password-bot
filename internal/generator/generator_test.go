@@ -12,7 +12,7 @@ func TestGenerate_Basic(t *testing.T) {
 		t.Fatal(err)
 	}
 	if len(pwd) != 12 {
-		t.Fatalf("ожидаемая длина 12, полученная длина %d", len(pwd))
+		t.Fatalf("expected length 12, got %d", len(pwd))
 	}
 	var hasU, hasL, hasD, hasS bool
 	for _, r := range pwd {
@@ -28,7 +28,7 @@ func TestGenerate_Basic(t *testing.T) {
 		}
 	}
 	if !hasU || !hasL || !hasD || !hasS {
-		t.Fatalf("недостаточно категорий: U=%v L=%v D=%v S=%v", hasU, hasL, hasD, hasS)
+		t.Fatalf("not all categories present: U=%v L=%v D=%v S=%v", hasU, hasL, hasD, hasS)
 	}
 }
 
@@ -41,16 +41,16 @@ func TestGenerate_ExcludeSimilar(t *testing.T) {
 	bad := map[rune]bool{'i': true, 'l': true, '1': true, 'O': true, '0': true}
 	for _, r := range pwd {
 		if bad[r] {
-			t.Fatalf("символ %q не должен присутствовать", r)
+			t.Fatalf("symbol %q should not appear", r)
 		}
 	}
 }
 
 func TestGenerate_Errors(t *testing.T) {
 	if _, err := Generate(2, FlagsSet{Upper: true}); err != ErrLengthOutOfRange {
-		t.Fatalf("ожидаемая ошибка ErrLengthOutOfRange, получено %v", err)
+		t.Fatalf("expected ErrLengthOutOfRange, got %v", err)
 	}
 	if _, err := Generate(5, FlagsSet{}); err != ErrNoCategorySelected {
-		t.Fatalf("ожидаемая ошибка ErrNoCategorySelected, получено %v", err)
+		t.Fatalf("expected ErrNoCategorySelected, got %v", err)
 	}
 }

@@ -6,6 +6,18 @@ import (
 	"math/big"
 )
 
+// Параметры генерации пароля / Parameters for password generation
+
+const (
+	LengthMin = 4
+	LengthMax = 35
+	ups       = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	lows      = "abcdefghijklmnopqrstuvwxyz"
+	digs      = "0123456789"
+	specSymbs = "!@#№$;%^:&?*()-_=+[]{}<>.,/|`~"
+	similars  = "il1O0"
+)
+
 var (
 	ErrLengthOutOfRange   = errors.New("length_out_of_range")
 	ErrNoCategorySelected = errors.New("no_category_selected")
@@ -15,28 +27,18 @@ type FlagsSet struct {
 	Upper, Lower, Digits, SpecSymbols, ExcludeSimilar bool
 }
 
-// HasAny returns true if at least one of the flags is selected (except ExcludeSimilar)
 func (f FlagsSet) HasAny() bool {
 	return f.Upper || f.Lower || f.Digits || f.SpecSymbols
 }
 
-// Categories of symbols
-const (
-	ups       = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	lows      = "abcdefghijklmnopqrstuvwxyz"
-	digs      = "0123456789"
-	specSymbs = "!@#№$;%^:&?*()-_=+[]{}<>.,/|`~"
-	similars  = "il1O0"
-)
+// Generate создаёт пароль длины LengthMin–LengthMax, минимум по одному символу из каждой выбранной категории
+// Generate creates a password of lenghtMin-LenghtMax, at least one symbol from each selected category
 
-// Generate creates a password length from 4 to 35 symbols
-// each selected category occurs ≥1 time
-// at least 1 flag must be selected (true)
 func Generate(length int, flags FlagsSet) (string, error) {
-	if length < 4 || length > 35 {
+	if length < LengthMin || length > LengthMax {
 		return "", ErrLengthOutOfRange
 	}
-	// Building a pool of symbols and categories
+
 	var pool []rune
 	var required [][]rune
 
@@ -60,6 +62,7 @@ func Generate(length int, flags FlagsSet) (string, error) {
 		required = append(required, runes)
 		pool = append(pool, runes...)
 	}
+
 	if len(required) == 0 {
 		return "", ErrNoCategorySelected
 	}
@@ -67,54 +70,56 @@ func Generate(length int, flags FlagsSet) (string, error) {
 		return "", ErrLengthOutOfRange
 	}
 
-	// Remove similar characters if flag is set
 	if flags.ExcludeSimilar {
-		fp := make([]rune, 0, len(pool))
+
+		// Фильтруются похожие символы из pool и required / Filter similar characters from pool and required
+
+		filteredPool := make([]rune, 0, len(pool))
 		for _, r := range pool {
 			if !containsRune(similars, r) {
-				fp = append(fp, r)
+				filteredPool = append(filteredPool, r)
 			}
 		}
-		pool = fp
+		pool = filteredPool
+
 		for i, cat := range required {
-			fc := make([]rune, 0, len(cat))
+			filteredCat := make([]rune, 0, len(cat))
 			for _, r := range cat {
 				if !containsRune(similars, r) {
-					fc = append(fc, r)
+					filteredCat = append(filteredCat, r)
 				}
 			}
-			required[i] = fc
+			required[i] = filteredCat
 		}
 	}
 
-	// Password assembly
+	// Собирается пароль: сначала по одному символу из каждой категории / Build password: first one symbol from each category
+
 	password := make([]rune, length)
-
-	// First, one symbol is taken from each category
-	// 4 categories = 4 symbols minimum one per category
 	for i, cat := range required {
-		idxBig, err := rand.Int(rand.Reader, big.NewInt(int64(len(cat))))
+		idx, err := rand.Int(rand.Reader, big.NewInt(int64(len(cat))))
 		if err != nil {
 			return "", err
 		}
-		password[i] = cat[idxBig.Int64()]
+		password[i] = cat[idx.Int64()]
 	}
 
-	// The remaining symbols are taken from the general pool
+	// Заполняются оставшиеся позиции случайными символами из pool / Fill the rest of the positions with random symbols from pool
+
 	for i := len(required); i < length; i++ {
-		idxBig, err := rand.Int(rand.Reader, big.NewInt(int64(len(pool))))
+		idx, err := rand.Int(rand.Reader, big.NewInt(int64(len(pool))))
 		if err != nil {
 			return "", err
 		}
-		password[i] = pool[idxBig.Int64()]
+		password[i] = pool[idx.Int64()]
 	}
 
-	// shuffle the symbols
+	// Перемешивается массив рун / Shuffle the array of runes
+
 	mix(password)
 	return string(password), nil
 }
 
-// containsRune compares symbols to remove similars
 func containsRune(s string, r rune) bool {
 	for _, c := range s {
 		if c == r {
@@ -124,15 +129,15 @@ func containsRune(s string, r rune) bool {
 	return false
 }
 
-// mix shuffles symbols
-func mix(runes []rune) {
+func mix(runes []rune) error {
 	n := len(runes)
 	for i := n - 1; i > 0; i-- {
-		jBig, err := rand.Int(rand.Reader, big.NewInt(int64(i+1)))
+		j, err := rand.Int(rand.Reader, big.NewInt(int64(i+1)))
 		if err != nil {
-			continue
+			return err
 		}
-		j := int(jBig.Int64())
-		runes[i], runes[j] = runes[j], runes[i]
+		k := int(j.Int64())
+		runes[i], runes[k] = runes[k], runes[i]
 	}
+	return nil
 }

@@ -9,37 +9,33 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// ErrNotFound is returned if there is no state in Redis for the given chatID
 var ErrNotFound = fmt.Errorf("session not found")
 
-// RedisStore stores sessions in Redis
 type RedisStore struct {
 	client *redis.Client
 	prefix string
 	ttl    time.Duration
 }
 
-// NewRedisStore creates a store instance
-// redisAddr - e.g. "redis:6379", db - database number, pwd - password ("" if none)
-func NewRedisStore(redisAddr string, db int, pwd string) *RedisStore {
-	rdb := redis.NewClient(&redis.Options{
-		Addr:     redisAddr,
-		DB:       db,
-		Password: pwd,
-	})
+// NewRedisStore создает новый RedisStore с заданными параметрами / NewRedisStore creates a new RedisStore with the given parameters
+
+func NewRedisStore(opts *redis.Options) *RedisStore {
+	client := redis.NewClient(opts)
 	return &RedisStore{
-		client: rdb,
+		client: client,
 		prefix: "session:",
-		ttl:    TTLSession,
+		ttl:    0,
 	}
 }
 
-// key generates a key for Redis from chatID
+// key генерирует ключ для Redis по chatID / key generates a Redis key based on chatID
+
 func (r *RedisStore) key(chatID int64) string {
 	return fmt.Sprintf("%s%d", r.prefix, chatID)
 }
 
-// Get loads the session from Redis
+// Get получает сессию по chatID / Get retrieves a session by chatID
+
 func (r *RedisStore) Get(chatID int64) (*Session, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
@@ -58,12 +54,12 @@ func (r *RedisStore) Get(chatID int64) (*Session, error) {
 	return &sess, nil
 }
 
-// Set serializes and stores a session with TTL
+// Set сохраняет сессию в Redis по chatID / Set saves a session to Redis by chatID
+
 func (r *RedisStore) Set(chatID int64, sess *Session) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
-	sess.LastActive = time.Now()
 	buf, err := json.Marshal(sess)
 	if err != nil {
 		return err
@@ -71,7 +67,8 @@ func (r *RedisStore) Set(chatID int64, sess *Session) error {
 	return r.client.Set(ctx, r.key(chatID), buf, r.ttl).Err()
 }
 
-// Delete deletes the session key
+// Delete удаляет сессию по chatID / Delete removes a session by chatID
+
 func (r *RedisStore) Delete(chatID int64) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()

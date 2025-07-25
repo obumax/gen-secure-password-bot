@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	goi18n "github.com/nicksnyder/go-i18n/v2/i18n"
-	"github.com/obumax/pet-password-generator/internal/generator"
+	"github.com/obumax/gen-secure-password-bot/internal/generator"
 )
 
 const (
@@ -12,7 +12,8 @@ const (
 	ErrNoCatID  = "no_category_selected"
 )
 
-// MapError converts the generator's machine errors into a localized message
+// MapError переводит ошибки из генератора в локализованное сообщение / MapError translates generator errors to localized messages
+
 func MapError(loc *goi18n.Localizer, err error, data map[string]interface{}) string {
 	var msgID string
 	switch {

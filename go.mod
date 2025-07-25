@@ -1,6 +1,6 @@
-module github.com/obumax/pet-password-generator
+module github.com/obumax/gen-secure-password-bot
 
-go 1.23.3
+go 1.24.2
 
 require (
 	github.com/go-redis/redismock/v9 v9.2.0

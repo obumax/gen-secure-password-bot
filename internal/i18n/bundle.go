@@ -11,15 +11,13 @@ import (
 	"golang.org/x/text/language"
 )
 
-var (
-	//go:embed locales/*.json
-	localeFS embed.FS
+//go:embed locales/*.json
+var localeFS embed.FS
 
-	bundle *goi18n.Bundle
-)
+var bundle *goi18n.Bundle
 
-// InitBundle creates a Bundle with a fallback in English,
-// Registers a JSON parser and loads all locales/*.json files
+// InitBundle инициализирует Bundle и грузит все JSON-файлы / InitBundle initializes the Bundle and loads all JSON files
+
 func InitBundle() error {
 	bundle = goi18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
@@ -40,7 +38,8 @@ func InitBundle() error {
 	return nil
 }
 
-// Localizer returns the localizer for the specified code (for example, "en" or "ru")
+// Localizer возвращает localizer для кода lang ("en", "ru" и т.д.) / Localizer returns a localizer for the language code (e.g., "en", "ru")
+
 func Localizer(lang string) *goi18n.Localizer {
 	if bundle == nil {
 		log.Println("i18n: bundle not initialized, initializing")
