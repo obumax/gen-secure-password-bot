@@ -4,7 +4,7 @@
 
 # gen-secure-password-bot
 
-## 🇷🇺 Русский
+## Русский
 
 ### Описание
 
@@ -82,13 +82,14 @@ docker-compose up --build
 
 4. Добавьте бота в Telegram и начните диалог
 
+Ссылка на оригинальный бот
 https://t.me/GenSecurePasswordBot
 
 ---
 
 # gen_secure_password_bot
 
-## 🇬🇧 English
+## English
 
 ### Description
 
@@ -165,6 +166,7 @@ docker-compose up --build
 
 4. Add the bot in Telegram and start a conversation
 
+Link to the original bot
 https://t.me/GenSecurePasswordBot
 
 ---
