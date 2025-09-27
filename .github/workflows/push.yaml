@@ -26,6 +26,7 @@ jobs:
         with:
           file: ./coverage.txt
           fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Vet
         run: |
