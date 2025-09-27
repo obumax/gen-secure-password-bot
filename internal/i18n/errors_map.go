@@ -4,7 +4,8 @@ import (
 	"errors"
 
 	goi18n "github.com/nicksnyder/go-i18n/v2/i18n"
-	"github.com/obumax/gen-secure-password-bot/internal/generator"
+
+	"gen-secure-password-bot/internal/generator"
 )
 
 const (

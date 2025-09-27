@@ -8,9 +8,9 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/redis/go-redis/v9"
 
-	"github.com/obumax/gen-secure-password-bot/internal/i18n"
-	"github.com/obumax/gen-secure-password-bot/internal/session"
-	"github.com/obumax/gen-secure-password-bot/internal/telegram"
+	"gen-secure-password-bot/internal/i18n"
+	"gen-secure-password-bot/internal/session"
+	"gen-secure-password-bot/internal/telegram"
 )
 
 func main() {

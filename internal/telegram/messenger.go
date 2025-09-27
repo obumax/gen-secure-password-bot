@@ -7,8 +7,8 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	goi18n "github.com/nicksnyder/go-i18n/v2/i18n"
 
-	"github.com/obumax/gen-secure-password-bot/internal/generator"
-	"github.com/obumax/gen-secure-password-bot/internal/session"
+	"gen-secure-password-bot/internal/generator"
+	"gen-secure-password-bot/internal/session"
 )
 
 // Базовая отправка сообщения / Basic message sending

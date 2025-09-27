@@ -5,7 +5,8 @@ import (
 	"log"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/obumax/gen-secure-password-bot/internal/session"
+
+	"gen-secure-password-bot/internal/session"
 )
 
 type Bot struct {

@@ -1,4 +1,4 @@
-module github.com/obumax/gen-secure-password-bot
+module gen-secure-password-bot
 
 go 1.24.2
 
