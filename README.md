@@ -21,7 +21,8 @@
 - **go-i18n** — поддержка локализации
 - **godotenv** — загрузка переменных окружения
 - **go-redis** — клиент для Redis
-
+- **GitHub Actions** - CI/CD для автоматической сборки, тестирования и публикации Docker-образа при пуше новых тегов в репозиторий
+- **Codecov** - автоматический сбор и анализ покрытия тестами в CI/CD для контроля качества кода
 ---
 
 ### Особенности генерации пароля
@@ -67,20 +68,47 @@ git clone https://github.com/obumax/gen-secure-password-bot.git
 cd gen-secure-password-bot
 ```
 
-#### 2. Создайте файл .env
+#### 2. Установите и запустите Redis на сервере
+
+```bash
+sudo apt update
+sudo apt install redis-server -y
+sudo systemctl enable redis-server
+sudo systemctl start redis-server
+```
+
+#### 3. Создайте файл .env
 
 ```bash
 BOT_TOKEN=ваш_токен_бота
-REDIS_PASSWORD=ваш_пароль_redis
+REDIS_PASSWORD=ваш_пароль_redis # если у вас включен пароль
 ```
 
-#### 3. Запустите через Docker Compose
+#### 4. Настройте переменные окружения для подключения к Redis (на хост-машине)
+
+В Docker Compose укажите подключение к Redis на сервере, а не к контейнеру через host.docker.internal (или 172.17.0.1 для Linux):
+
+```bash
+environment:
+  - BOT_TOKEN=${BOT_TOKEN}
+  - REDIS_URL=redis://:${REDIS_PASSWORD}@host.docker.internal:6379/0
+```
+
+или
+
+```bash
+environment:
+  - BOT_TOKEN=${BOT_TOKEN}
+  - REDIS_URL=redis://:${REDIS_PASSWORD}@172.17.0.1:6379/0
+```
+
+#### 5. Запустите через Docker Compose
 
 ```bash
 docker-compose up --build
 ```
 
-#### 4. Добавьте бота в Telegram и начните диалог
+#### 6. Добавьте бота в Telegram и начните диалог
 
 Ссылка на оригинальный бот
 https://t.me/GenSecurePasswordBot
@@ -106,17 +134,35 @@ git tag v1.0.0 && git push --tags
 curl -fsSL https://get.docker.com | sh
 ```
 
-#### 2. Запустите контейнер из DockerHub:
+#### 2. Установите/убедитесь, что Redis запущен на сервере:
+
+```bash
+sudo apt install redis-server -y
+sudo systemctl enable redis-server
+sudo systemctl start redis-server
+```
+
+#### 3. Запустите контейнер бота, указав подключение к Redis на сервере:
 
 ```bash
 docker run -d \
   --name gen-secure-password-bot \
   -e BOT_TOKEN=ваш_токен_бота \
-  -e REDIS_PASSWORD=ваш_пароль_redis \
+  -e REDIS_URL=redis://:ваш_пароль_redis@host.docker.internal:6379/0 \
   obumax/gen-secure-password-bot:latest
 ```
 
-#### 3. Используйте Watchtower для автообновления контейнера при выходе новой версии:
+Для Linux используйте 172.17.0.1 вместо host.docker.internal:
+
+```bash
+docker run -d \
+  --name gen-secure-password-bot \
+  -e BOT_TOKEN=ваш_токен_бота \
+  -e REDIS_URL=redis://:ваш_пароль_redis@host.docker.internal:6379/0 \
+  obumax/gen-secure-password-bot:latest
+```
+
+#### 4. Используйте Watchtower для автообновления контейнера при выходе новой версии:
 
 ```bash
 docker run -d \
@@ -143,13 +189,15 @@ docker run -d \
 
 ### Stack and Libraries
 
-- Go 1.24.2
-- Redis — user session storage
-- Docker and docker-compose — for containerization and running
-- go-telegram-bot-api — Telegram Bot API integration
-- go-i18n — localization support
-- godotenv — environment variable loading
-- go-redis — Redis client
+- **Go 1.24.2**
+- **Redis** — user session storage
+- **Docker** and **docker-compose** — for containerization and running
+- **go-telegram-bot-api** — Telegram Bot API integration
+- **go-i18n** — localization support
+- **godotenv** — environment variable loading
+- **go-redis** — Redis client
+- **GitHub Actions** — CI/CD for automatic build, testing, and DockerHub publishing on new tags
+- **Codecov** — Automated code coverage collection and analysis in CI/CD to monitor code quality
 
 ---
 
@@ -186,7 +234,7 @@ Characters are shuffled for extra security
 
 ---
 
-### How to Run
+###  Quick Start Guide
 
 #### 1. Clone the repository
 
@@ -195,20 +243,47 @@ git clone https://github.com/obumax/gen-secure-password-bot.git
 cd gen-secure-password-bot
 ```
 
-#### 2. Create a .env file
+#### 2. Install and Start Redis on your server
+
+```bash
+sudo apt update
+sudo apt install redis-server -y
+sudo systemctl enable redis-server
+sudo systemctl start redis-server
+```
+
+#### 3. Create a .env file
 
 ```bash
 BOT_TOKEN=your_bot_token
-REDIS_PASSWORD=your_redis_password
+REDIS_PASSWORD=your_redis_password # if enabled
 ```
 
-#### 3. Start with Docker Compose
+#### 4. Configure environment variables for Redis connection
+
+In your docker-compose.yml, make sure to connect to the host Redis (not a container):
+
+```bash
+environment:
+  - BOT_TOKEN=${BOT_TOKEN}
+  - REDIS_URL=redis://:${REDIS_PASSWORD}@host.docker.internal:6379/0
+```
+
+Or on Linux, use Docker’s gateway address:
+
+```bash
+environment:
+  - BOT_TOKEN=${BOT_TOKEN}
+  - REDIS_URL=redis://:${REDIS_PASSWORD}@172.17.0.1:6379/0
+```
+
+#### 5. Start the bot with Docker Compose
 
 ```bash
 docker-compose up --build
 ```
 
-#### 4. Add the bot in Telegram and start a conversation
+#### 6. Add the bot in Telegram and start chatting
 
 Link to the original bot
 https://t.me/GenSecurePasswordBot
@@ -232,17 +307,31 @@ The workflow file contains all the CI/CD logic (build, tests, push).
 curl -fsSL https://get.docker.com | sh
 ```
 
-#### 2. Run the container from DockerHub:
+#### 2. Make sure Redis is running on the server
+
+As shown above.
+
+#### 3. Run the bot container, connecting to the host Redis:
 
 ```bash
 docker run -d \
   --name gen-secure-password-bot \
-  -e BOT_TOKEN=your_bot_token \
-  -e REDIS_PASSWORD=your_redis_password \
+  -e BOT_TOKEN=your_telegram_bot_token \
+  -e REDIS_URL=redis://:your_redis_password@host.docker.internal:6379/0 \
   obumax/gen-secure-password-bot:latest
 ```
 
-#### 3. For auto-updates use Watchtower:
+On Linux, use 172.17.0.1 instead of host.docker.internal:
+
+```bash
+docker run -d \
+  --name gen-secure-password-bot \
+  -e BOT_TOKEN=your_telegram_bot_token \
+  -e REDIS_URL=redis://:your_redis_password@172.17.0.1:6379/0 \
+  obumax/gen-secure-password-bot:latest
+```
+
+#### 4. For auto-updates use Watchtower (Optional):
 
 ```bash
 docker run -d \
